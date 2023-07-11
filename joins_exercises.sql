@@ -343,6 +343,46 @@ ORDER BY average_salary DESC;
 
 -- Bonus Find the names of all current employees, their department name, and their current manager's name.
 
+SELECT 
+	-- concatenation of the first name and last name
+    -- employees table aliased as pro here
+	CONCAT(pro.first_name, ' ', pro.last_name) AS emp_name,
+    dept_name,
+    -- concatenation of the first name and last name
+    -- employees table aliased as bourg here
+    CONCAT(bourg.first_name, ' ', bourg.last_name) AS manager_name
+FROM 	
+	employees AS pro
+-- link into dept_emp because thats where the dept nos are
+JOIN dept_emp de
+-- USING is not a appropriate use here
+-- because we have two versions of employees table,
+-- we need to specify which one.  this time its pro
+ON de.emp_no = pro.emp_no
+-- chained condition in join for current employees
+AND de.to_date > NOW()
+-- link up to departments to get the department name
+JOIN departments d
+-- link from dept_emp to departments is dept_no
+USING (dept_no)
+-- next half of the map:
+-- i need to use my other joiner table
+-- which is dept_manager as dm here
+JOIN dept_manager dm
+-- dept manager has my emp_nos for managers specifically
+-- so because i've linked up to this point
+-- i can join the table I have crafted up til now
+-- and link it up so that I now have these dept manager
+-- employee numbers which I can then link back around
+-- and go all the way back to employees table
+USING (dept_no)
+-- self join: bring employees back in the mix, 
+-- call it something different
+JOIN employees bourg
+-- same chained condition for current employees,
+-- but specifically current managers
+ON bourg.emp_no = dm.emp_no
+AND dm.to_date > NOW();
 -- 240,124 Rows
 
 -- Employee Name | Department Name  |  Manager Name
